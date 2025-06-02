@@ -1,10 +1,15 @@
 const express = require('express');
 const cors = require('cors');
-const { recordSearch, getStats } = require('./stats');
+const morgan = require('morgan');
+const { searchPeople, searchMovies } = require('./search');
+const { logQuery, getStats } = require('./stats');
 
 const app = express();
+const PORT = 3001;
+
 app.use(cors());
 app.use(express.json());
+app.use(morgan('dev'));
 
 app.get('/search', async (req, res) => {
   const { name, type } = req.query;
@@ -12,24 +17,30 @@ app.get('/search', async (req, res) => {
     return res.status(400).json({ error: 'Missing name or type' });
   }
 
+  const start = Date.now();
   try {
-    const endpoint = type === 'people' ? 'people' : 'films';
-    const search = type === 'people' ? 'name' : 'title';
+    let result;
+    if (type === 'people') {
+      result = await searchPeople(name);
+    } else if (type === 'movies') {
+      result = await searchMovies(name);
+    } else {
+      return res.status(400).json({ error: 'Invalid type' });
+    }
 
-    const response = await fetch(`https://swapi.tech/api/${endpoint}/?${search}=${name}`);
-    const data = await response.json();
-    recordSearch(name);
-    res.json(data);
+    const duration = Date.now() - start;
+    logQuery(name, duration);
+    return res.json(result);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch from SWAPI' });
+    console.error('Search error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 app.get('/stats', (req, res) => {
-  res.json(getStats());
+  return res.json(getStats());
 });
 
-const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Backend running on port ${PORT}`);
+  console.log(`Server listening on http://localhost:${PORT}`);
 });
