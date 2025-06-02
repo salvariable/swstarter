@@ -13,7 +13,10 @@ app.get('/search', async (req, res) => {
   }
 
   try {
-    const response = await fetch(`https://swapi.tech/api/${type}/?name=${name}`);
+    const endpoint = type === 'people' ? 'people' : 'films';
+    const search = type === 'people' ? 'name' : 'title';
+
+    const response = await fetch(`https://swapi.tech/api/${endpoint}/?${search}=${name}`);
     const data = await response.json();
     recordSearch(name);
     res.json(data);
