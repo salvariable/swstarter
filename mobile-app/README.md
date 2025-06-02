@@ -1,50 +1,132 @@
-# Welcome to your Expo app 👋
+# SWStarter
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**SWStarter** is a fullstack Star Wars search app powered by Expo Router and Node.js. It allows users to search for characters and films using the [https://swapi.tech](https://swapi.tech) API. The app includes a fully designed mobile interface and a backend that computes usage statistics every 5 minutes.
 
-## Get started
+---
 
-1. Install dependencies
+## 🚀 Technologies
 
-   ```bash
-   npm install
-   ```
+- **Frontend**: Expo Router (React Native)
+- **Backend**: Node.js + Express
+- **Stats Engine**: in-memory counter with `setInterval`
+- **UI Style**: Matches Zeplin designs
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## 📦 Project Structure
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+SWStarter/
+├── backend/             # Express server + search logic + stats engine
+│   ├── src/
+│   │   ├── index.js     # Main backend entry
+│   │   ├── search.js    # Query handlers for people/films
+│   │   └── stats.js     # Stats collection & periodic refresh
+│   ├── Dockerfile
+│   └── package.json
+│
+├── mobile-app/          # Expo app with routing and views
+│   ├── app/
+│   │   ├── index.tsx
+│   │   ├── results.tsx
+│   │   ├── details.tsx
+│   │   └── _layout.tsx
+│   └── package.json
+└── README.md
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## 🧪 How to Run
 
-To learn more about developing your project with Expo, look at the following resources:
+### Requirements
+- Node.js 18+
+- Docker
+- Expo CLI (`npm install -g expo-cli`)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 1. Start Backend
 
-## Join the community
+```bash
+cd backend
+docker-compose up --build
+```
 
-Join our community of developers creating universal apps.
+This launches the API server on `http://localhost:3001`.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 2. Start Mobile App
+
+In a separate terminal:
+
+```bash
+cd mobile-app
+npm install
+npm run start
+```
+
+Then press `i` for iOS simulator or `a` for Android.
+
+> 💡 If the mobile app runs on a simulator, ensure `localhost` resolves correctly. Replace `localhost` with your local IP if needed in `results.tsx`.
+
+---
+
+## 🔁 `/search` Endpoint
+
+```
+GET /search?name=Yoda&type=people
+```
+
+- `type` can be `people` or `movies`
+- Internally proxies to `https://swapi.tech/api/{type}?name={name}`
+- Returns results in a flattened format under `properties`
+
+---
+
+## 📊 `/stats` Endpoint
+
+```
+GET /stats
+```
+
+Example:
+
+```json
+{
+  "topQueries": [
+    { "term": "Yoda", "count": 8, "percentage": 26.7 },
+    ...
+  ],
+  "averageDurationMs": 512,
+  "hourlyDistribution": {
+    "14": 5,
+    "15": 8,
+    ...
+  }
+}
+```
+
+- Stats update every 5 minutes
+- Uses in-memory queue (no persistent DB)
+
+---
+
+## ✅ Features
+
+- Search people and movies
+- View character or film details
+- Navigate with Expo Router
+- Backend stats with top queries, average time, hourly hits
+
+---
+
+## 🧪 QA Checklist
+
+✔️ Mobile app runs on simulator  
+✔️ Backend served via Docker  
+✔️ `/stats` endpoint verified  
+✔️ Ready for manual test on other devices
+
+---
+
+## 📬 Contact
+
+Built as a technical take-home challenge for LawnStarter.
