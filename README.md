@@ -47,7 +47,6 @@ SWStarter/
 ### 1. Start Backend
 
 ```bash
-cd backend
 docker-compose up --build
 ```
 

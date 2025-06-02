@@ -22,8 +22,6 @@ export default function DetailsScreen() {
             .join(', ');
     };
 
-    console.log('Details params ==============:', params);
-
     const characterList = (params.characters || '')
         .split(',')
         .map((name: string, index: number) => (
