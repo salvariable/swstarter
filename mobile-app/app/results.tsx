@@ -7,6 +7,7 @@ import {
     FlatList,
     Pressable,
     StyleSheet,
+    Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,12 +21,14 @@ export default function ResultsScreen() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
+    const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:3001' : 'http://localhost:3001';
+
     useEffect(() => {
         if (!name || !type) return;
 
         const fetchResults = async () => {
             try {
-                const res = await axios.get(`http://localhost:3001/search`, {
+                const res = await axios.get(`${API_URL}/search`, {
                     params: { name, type },
                 });
 
